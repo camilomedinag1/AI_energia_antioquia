@@ -21,10 +21,10 @@ import seaborn as sns
 """Preparación de los Datos en Python"""
 
 # Cargar los datos desde un archivo de Excel
-df = pd.read_excel("/content/Datos_consumo_de_energia_antioquia.xlsx")
+df = pd.read_excel("/home/camilo/Workspace/modelo_de_eficiencia_energética/Datos_antioquia.xlsx")
 
 # Ver las primeras filas del DataFrame
-print(df.head())
+df.head()
 
 """Análisis Descriptivo:
 
@@ -81,6 +81,7 @@ model.fit(X_train, y_train)
 
 # Hacer predicciones
 predictions = model.predict(X_test)
+from sklearn.metrics import mean_squared_error
 
 # Evaluar el modelo
 mse = mean_squared_error(y_test, predictions)
