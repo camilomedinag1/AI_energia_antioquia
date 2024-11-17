@@ -232,4 +232,84 @@ plt.xlabel("Distancia a la Central Eléctrica (km)")
 plt.ylabel("Eficiencia Energética")
 plt.show()
 
-"""En el modelo anterior se evidencia la falta de relación entre la distancia de la central y la necesidad de energía. En una sociedad más eficiente, los datos se relacionarían de manera secuencial."""
+"""En el modelo anterior se evidencia la falta de relación entre la distancia de la central y la necesidad de energía. En una sociedad más eficiente, los datos se relacionarían de manera secuencial."
+
+
+
+#ingresar los datos a modelo neuronal multicapa
+"""
+
+import tensorflow as tf
+from tensorflow import keras
+from sklearn.preprocessing import StandardScaler
+
+"""Preparamos la data"""
+
+features = ['KW per capita', 'Consumo promedio mensual de energía (kWh)', 'Población']
+target = 'PIB Bruto-millonesCOP'
+X = df[features]
+y = df[target]
+
+"""dividir la darta entre trainingm, testing sets y validation"""
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+
+"""Escalar la data para mejorar el performance del modelo"""
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_val = scaler.transform(X_val)
+X_test = scaler.transform(X_test)
+
+"""Construir el modelo
+definir modelo con mutiples capas usando Keras
+"""
+
+model = keras.Sequential([
+      keras.layers.Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
+      keras.layers.Dense(32, activation='relu'),
+      keras.layers.Dense(1)  # Output layer for regression
+  ])
+
+"""compilar modelo:
+funciones de perdida y metricas
+"""
+
+model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mae'])
+
+"""Entrenar el modelo"""
+
+history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_data=(X_val, y_val))
+print(history)
+
+"""Evaluar el modelo"""
+
+loss, mae = model.evaluate(X_test, y_test, verbose=0)
+print("Mean Absolute Error:", mae)
+
+"""Error Absoluto Medio (MAE), esto es lo que puedes inferir:
+
+Desempeño del Modelo:
+
+MAE: El MAE representa la diferencia promedio absoluta entre las predicciones de tu modelo y los valores reales. Un MAE más bajo indica un mejor rendimiento, lo que significa que las predicciones de tu modelo están más cerca de los valores verdaderos.
+Información sobre los Datos:
+
+Relación entre las Características y el Objetivo: Si tu modelo funciona bien (MAE bajo), sugiere que las características que seleccionaste (KW per cápita, Consumo promedio mensual de energía, Población) tienen una relación significativa con la variable objetivo (PIB Bruto-millonesCOP). Esto implica que estas características probablemente son factores importantes que influyen en el PIB.
+
+Poder Predictivo: Un modelo con buen rendimiento indica que es posible usarlo para hacer predicciones razonablemente precisas sobre el PIB basándose en las características de entrada.
+
+Limitaciones del Modelo:
+
+Generalización: Incluso si el modelo tiene un buen desempeño en tu conjunto de prueba, es esencial considerar qué tan bien podría generalizarse a datos nuevos y no vistos. Factores como el tamaño y la representatividad de tu conjunto de datos pueden afectar la capacidad de generalización.
+Sobreajuste (Overfitting): Si tu modelo se desempeña muy bien en los datos de entrenamiento, pero mal en los datos de validación o prueba, podría estar sobreajustado. El sobreajuste significa que el modelo ha aprendido demasiado bien los datos de entrenamiento y no se generaliza adecuadamente a datos nuevos.
+Análisis Adicional:
+
+Importancia de las Características: Puedes investigar qué características contribuyen más a las predicciones del modelo. Esto puede proporcionar información adicional sobre los factores que influyen en el PIB.
+Optimización del Modelo: Puedes experimentar con diferentes arquitecturas del modelo (por ejemplo, agregar o eliminar capas, cambiar las funciones de activación) o hiperparámetros (como la tasa de aprendizaje o el tamaño del lote) para intentar mejorar el rendimiento.
+Ejemplo de Interpretación:
+Supongamos que tu modelo logró un MAE de 5000 (en las unidades de tu PIB). Esto significa que, en promedio, las predicciones del PIB de tu modelo se desvían en aproximadamente 5000 unidades. Dependiendo de la escala de tus valores de PIB, esto podría considerarse un rendimiento bueno o razonable. Si los valores del PIB están en millones, un MAE de 5000 podría ser relativamente pequeño.
+
+"""
