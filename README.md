@@ -96,4 +96,6 @@ El multiplicador generacional es un modelo matemático que permite a la IA reali
 
 licencia publica, modelo de IA sin animo de lucro.
 
+# Practicando git clonando el proyecto EnergiaIA Antioquia
+
 
